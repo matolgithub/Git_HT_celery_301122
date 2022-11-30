@@ -84,6 +84,9 @@ def long_task(self):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    emails = get_users()
+    users_count = len(emails)
+
     if request.method == 'GET':
         return render_template('index.html', email=session.get('email', ''))
     email = request.form['email']
@@ -91,14 +94,28 @@ def index():
 
     # send the email
     email_data = {
-        'subject': 'Hello from Flask',
+        'subject': 'Home task 2.4 letter with Flask + Celery + Redis!',
         'to': email,
-        'body': 'This is a test email sent from a background Celery task.'
+        'body': 'It is email letter sent from a background Celery task.'
     }
     if request.form['submit'] == 'Send':
         # send right away
         send_async_email.delay(email_data)
         flash('Sending email to {0}'.format(email))
+
+    elif request.form['submit'] == 'Send emails':
+        for email in emails:
+            session['email'] = email
+
+            # send the email
+            email_data = {
+                'subject': 'Mass letter with Flask + Celery + Redis!',
+                'to': email,
+                'body': 'It is mass email letter sent from Celery task.'
+            }
+            send_async_email.delay(email_data)
+            flash('Sending email to {0}'.format(email))
+
     else:
         # send in one minute
         send_async_email.apply_async(args=[email_data], countdown=60)
