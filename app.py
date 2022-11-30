@@ -16,7 +16,7 @@ app.config['MAIL_SERVER'] = environ.get('MAIL_SERVER', 'smtp.googlemail.com')
 app.config['MAIL_PORT'] = environ.get('MAIL_PORT', 587)
 app.config['MAIL_USE_TLS'] = environ.get('MAIL_USE_TLS', True)
 app.config['MAIL_USERNAME'] = environ.get('MAIL_USERNAME', 'matolpydev')
-app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD', 'csszpkcslndaiita')
+app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD', '*********')
 app.config['MAIL_DEFAULT_SENDER'] = environ.get('MAIL_DEFAULT_SENDER', 'matolpydev@gmail.com')
 
 # Celery configuration
