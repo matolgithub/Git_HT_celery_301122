@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15.0
+    ports:
+      - "5431:5432"
+    environment:
+      - POSTGRES_USER=celery_ht_user
+      - POSTGRES_PASSWORD=celery_ht_pswd
+      - POSTGRES_DB=celery_ht_db
