@@ -1,32 +1,54 @@
-import os
+from os import environ
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from application.models import User
 import random
 import time
-from flask import Flask, request, render_template, session, flash, redirect, \
-    url_for, jsonify
+from flask import Flask, request, render_template, session, flash, redirect, url_for, jsonify
 from flask_mail import Mail, Message
 from celery import Celery
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'top-secret!'
+app.config['SECRET_KEY'] = environ.get('SECRET_KEY', 'top-secret')
 
 # Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'matolpydev'
-app.config['MAIL_PASSWORD'] = 'csszpkcslndaiita'
-app.config['MAIL_DEFAULT_SENDER'] = 'matolpydev@gmail.com'
+app.config['MAIL_SERVER'] = environ.get('MAIL_SERVER', 'smtp.googlemail.com')
+app.config['MAIL_PORT'] = environ.get('MAIL_PORT', 587)
+app.config['MAIL_USE_TLS'] = environ.get('MAIL_USE_TLS', True)
+app.config['MAIL_USERNAME'] = environ.get('MAIL_USERNAME', 'matolpydev')
+app.config['MAIL_PASSWORD'] = environ.get('MAIL_PASSWORD', 'csszpkcslndaiita')
+app.config['MAIL_DEFAULT_SENDER'] = environ.get('MAIL_DEFAULT_SENDER', 'matolpydev@gmail.com')
 
 # Celery configuration
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+app.config['CELERY_BROKER_URL'] = environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+app.config['CELERY_RESULT_BACKEND'] = environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
 
 # Initialize extensions
 mail = Mail(app)
 
 # Initialize Celery
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 celery.conf.update(app.config)
+
+
+# Create list of email users
+def get_users() -> list:
+    users_data = []
+    users_email = []
+
+    engine = create_engine(environ.get("DSN_FLASK",
+                                       "postgresql://celery_ht_user:celery_ht_pswd@127.0.0.1:5431/celery_ht_db"))
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    users = session.query(User).all()
+
+    for user in users:
+        users_data.append({user.id: [user.name, user.password, user.email, user.creation_time]})
+        users_email.append(user.email)
+    session.close()
+
+    return users_email
 
 
 @celery.task
@@ -88,8 +110,7 @@ def index():
 @app.route('/longtask', methods=['POST'])
 def longtask():
     task = long_task.apply_async()
-    return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  task_id=task.id)}
+    return jsonify({}), 202, {'Location': url_for('taskstatus', task_id=task.id)}
 
 
 @app.route('/status/<task_id>')

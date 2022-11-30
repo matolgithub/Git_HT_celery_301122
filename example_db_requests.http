@@ -1,0 +1,51 @@
+# API-запросы
+
+@baseUrl = http://127.0.0.1:7000
+
+# создание объявления
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "name": "user_1",
+  "password": "gjrkrk45jkljka",
+  "email": "89175955650@mail.ru"
+}
+
+###
+
+# создание объявления
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "name": "user_2",
+  "password": "vekl87kdfknk22",
+  "email": "matolpydev@gmail.com"
+}
+
+###
+
+# создание объявления
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "name": "user_3",
+  "password": "ewkl5kl56k5lkefld",
+  "email": "rihman.light@gmail.com"
+}
+
+###
+
+# создание объявления
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "name": "user_4",
+  "password": "349l56k5lkefld",
+  "email": "rihman.llc@gmail.com"
+}
+
+###
